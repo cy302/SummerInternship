@@ -6,23 +6,36 @@ from scipy.stats import norm
 
 
 def dirichletrnd(alpha):
+    '''
+    generating dirchlet distributed random variable, generated sample size depends on the input parameter dimension
+    alpha: the parameter vector for the dirichlet distribution Dir(alpha)
+    '''
     s = np.random.gamma(shape=alpha, scale=1, size=len(alpha))
     x = s/np.sum(s)
     return x
 
 
 def calculate_m_s(c, s):
+    '''
+    compute the number of candidates in each cluster given the cluster assignment vector s
+    s: the cluster assignment vector
+    c: the candidate to be ommited
+    '''
     s_unique = np.unique(s)
     k = len(s_unique)
     m_s = np.zeros(k)
     for i in range(k):
-        m_s[i] = np.sum(s_unique == i)
+        m_s[i] = np.sum(s == i)
     if c != 0:
         m_s[s[c]] -= 1
     return m_s, k
 
 
 def rearrange_s(s):
+    '''
+    function to make sure that the cluster assignment is at most the number of unique elements in s
+    s: cluster assignment vector
+    '''
     s_unique = np.unique(s)
     k = len(s_unique)
     if np.max(s) > k:
