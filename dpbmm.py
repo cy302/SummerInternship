@@ -68,14 +68,12 @@ class params(object):
         self.beta_val = beta_val
 
 
-def dpbmm(data, num_iter, param=None):
+def dpbmm(data, num_iter, param=None, debug=False):
     # Beta value Dirichlet process mixture model, with no gap algorithm
     s_data = np.shape(data)
     G = s_data[0]
     C = s_data[1]
     count_sum = 100
-
-    debug = False # or True
 
     # parameters for G0, Gamma(a, b)
     a = 6
@@ -109,9 +107,9 @@ def dpbmm(data, num_iter, param=None):
                 if u < (k-1)/k:
                     continue
                 ind = np.where(s == k)
-                tmp = s[j]
-                s[ind] = tmp
-                s[j] = k
+                tmp = s[j].copy()
+                s[ind] = tmp.copy()
+                s[j] = k.copy()
 
                 tmp_alpha_val = alpha_val[:, tmp].copy()
                 alpha_val[:, tmp] = alpha_val[:, k].copy()
@@ -272,16 +270,18 @@ def dpbmm(data, num_iter, param=None):
                         sigma2b *= 0.98
                         if sigma2b < 0.01:
                             sigma2b = 0.01
-                        if count < 20:
+                        if count > 20:
                             sigma2b /= sigma2b
-
+        
+        ## step 3: resampling mixture weights pi
         if debug:
             print("resampling pi")
         if k == 1:
             continue
         m_s, k = calculate_m_s(0, s)
         pi = dirichletrnd(m_s+tau/k)
-
+        
+        ## step 4: resampling concentration parameter tau
         if debug:
             print("resampling tau")
         r = np.random.beta(a=tau+1, b=C, size=1)
@@ -292,7 +292,8 @@ def dpbmm(data, num_iter, param=None):
         else:
             tau_new = np.random.gamma(shape=a+k-1, scale=b-np.log(r), size=1)
         tau = tau_new
-
+        
+        ## step 5: update parameters for the usage in the new iteration
         if debug:
             print("parameters update")
         new_param.s = s
