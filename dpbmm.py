@@ -291,7 +291,7 @@ def dpbmm(data, num_iter, param=None, debug=False):
             tau_new = np.random.gamma(shape=a+k, scale=b-np.log(r), size=1)
         else:
             tau_new = np.random.gamma(shape=a+k-1, scale=b-np.log(r), size=1)
-        tau = tau_new
+        tau = tau_new.copy()
         
         ## step 5: update parameters for the usage in the new iteration
         if debug:
