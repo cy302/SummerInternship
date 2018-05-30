@@ -221,7 +221,7 @@ def dpbmm(data, num_iter, param=None, debug=False):
                         u = np.random.rand()
                         # count_ind += 1
                         if u < tmp:
-                            alpha_val[g, i] = new_alpha_val[g, i]
+                            alpha_val[g, i] = new_alpha_val[g, i].copy()
                             count += 1
 
                     if count >= 3:
